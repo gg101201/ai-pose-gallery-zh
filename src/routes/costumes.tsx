@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { referenceImageUrl } from '@/lib/recipeImages'
+import { downloadImage } from '@/lib/downloadImage'
 import { COSTUME_SOURCES, SHISEI_SOURCE_URLS, costumeSourceId, selectCostumeView } from '@/lib/costumeSources'
 import { CHARADB_NOTICE_URL } from '@/lib/charadb'
 import { useStudio } from '@/store/studioStore'
@@ -382,16 +383,13 @@ function CostumesPage() {
                       {picked ? '已在角色配方中（点击移除）' : '加入角色配方'}
                     </Button>
                     <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <a
-                          href={imageUrl}
-                          download={remoteImage ? undefined : `${currentItem.id}.${imageExt}`}
-                          target={remoteImage ? '_blank' : undefined}
-                          rel="noopener noreferrer"
-                        >
-                          <DownloadIcon className="size-3.5" />
-                          {remoteImage ? '前往来源原图' : '下载高清原图'}
-                        </a>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void downloadImage(imageUrl, `${currentItem.id}.${imageExt}`)}
+                      >
+                        <DownloadIcon className="size-3.5" />
+                        {remoteImage ? '下载原图' : '下载高清原图'}
                       </Button>
                       {['charadb', 'gia-anime'].includes(currentItem.source || '') ? (
                         <Button variant="outline" size="sm" asChild>

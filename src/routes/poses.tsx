@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { poseImagePath, poseThumbPath } from '@/lib/recipeImages'
+import { downloadImage } from '@/lib/downloadImage'
 import { cn } from '@/lib/utils'
 import { useStudio } from '@/store/studioStore'
 import type { PoseGroup, PoseItem } from '@/types/gallery'
@@ -592,11 +593,18 @@ function PosesPage() {
                       {picked ? '已在角色配方中（点击移除）' : `加入角色配方（${poseDepthMode ? '深度图' : '白模'}）`}
                     </Button>
                     <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={`/${activeImgPath}`} download={`${it.id}${poseDepthMode ? '_depth.webp' : '.png'}`}>
-                          <DownloadIcon className="size-3.5" />
-                          下载{poseDepthMode ? '深度图' : ' PNG'}
-                        </a>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          void downloadImage(
+                            `/${activeImgPath}`,
+                            `${it.id}${poseDepthMode ? '_depth.webp' : '.png'}`
+                          )
+                        }
+                      >
+                        <DownloadIcon className="size-3.5" />
+                        下载{poseDepthMode ? '深度图' : ' PNG'}
                       </Button>
                       <Button
                         variant="outline"

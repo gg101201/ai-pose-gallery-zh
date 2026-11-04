@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from '@/lib/notifications'
+import { downloadImage } from '@/lib/downloadImage'
 import { portraitsQuery } from '@/api/gallery'
 import { EmptyState } from '@/components/common/EmptyState'
 import { OriginalImageViewer } from '@/components/common/OriginalImageViewer'
@@ -359,11 +360,13 @@ function PortraitsPage() {
                       {picked ? '已在角色配方中（点击移除）' : '加入角色配方'}
                     </Button>
                     <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={`/${currentItem.原图}`} download={`${currentItem.id}.webp`}>
-                          <DownloadIcon className="size-3.5" />
-                          下载高清原图
-                        </a>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void downloadImage(`/${currentItem.原图}`, `${currentItem.id}.webp`)}
+                      >
+                        <DownloadIcon className="size-3.5" />
+                        下载高清原图
                       </Button>
                       <Button
                         variant="outline"

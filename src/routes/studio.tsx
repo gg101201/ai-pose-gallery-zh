@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { type ChangeEvent, type DragEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from '@/lib/notifications'
+import { downloadImage } from '@/lib/downloadImage'
 import { costumesQuery, portraitsQuery, posesQuery } from '@/api/gallery'
 import { Field, Section } from '@/components/common/FormSection'
 import { ComfyConnectionStatus } from '@/components/studio/ComfyConnectionStatus'
@@ -244,12 +245,11 @@ function StudioPage() {
       }
       const blob = new Blob([JSON.stringify(wf, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `comfyui-workflow-${Date.now()}.api.json`
-      a.click()
-      URL.revokeObjectURL(url)
-      toast.success('已导出 ComfyUI API 工作流 JSON')
+      try {
+        await downloadImage(url, `comfyui-workflow-${Date.now()}.api.json`)
+      } finally {
+        URL.revokeObjectURL(url)
+      }
     } catch {
       toast.error('当前工作流 JSON 格式有误，无法导出')
     }
@@ -1464,11 +1464,9 @@ function StudioPage() {
             className="@lg/section:grid-cols-1"
             actions={
               previewUrl && !isGenerating ? (
-                <Button variant="outline" size="sm" asChild>
-                  <a href={previewUrl} download="image.png">
-                    <DownloadIcon className="size-3.5" />
-                    下载图片
-                  </a>
+                <Button variant="outline" size="sm" onClick={() => void downloadImage(previewUrl)}>
+                  <DownloadIcon className="size-3.5" />
+                  下载图片
                 </Button>
               ) : null
             }
@@ -1594,13 +1592,13 @@ function StudioPage() {
                   >
                     复用词
                   </button>
-                  <a
-                    href={h.imageUrl}
-                    download={`character-${h.id}.png`}
+                  <button
+                    type="button"
+                    onClick={() => void downloadImage(h.imageUrl, `character-${h.id}`)}
                     className="flex h-7 items-center justify-center rounded-lg bg-primary/10 text-[11px] font-medium whitespace-nowrap text-primary transition hover:bg-primary/20"
                   >
                     下载
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1618,11 +1616,9 @@ function StudioPage() {
           <DialogHeader className="flex flex-row flex-wrap items-center justify-between gap-3 pr-8">
             <DialogTitle className="text-base">参考图拼合卡片</DialogTitle>
             {stitchModalUrl && (
-              <Button size="sm" variant="outline" asChild>
-                <a href={stitchModalUrl} download="reference-sheet.jpg">
-                  <DownloadIcon className="size-3.5" />
-                  下载拼图
-                </a>
+              <Button size="sm" variant="outline" onClick={() => void downloadImage(stitchModalUrl, 'reference-sheet.jpg')}>
+                <DownloadIcon className="size-3.5" />
+                下载拼图
               </Button>
             )}
           </DialogHeader>
