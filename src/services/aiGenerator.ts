@@ -385,6 +385,20 @@ async function srcToPngDataUrl(src: string): Promise<string> {
   return c.toDataURL('image/png')
 }
 
+async function srcToJpegDataUrl(src: string, maxSide = 1280, quality = 0.9): Promise<string> {
+  if (src.startsWith('data:image/')) return src
+  const img = await loadImage(src)
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height))
+  const c = document.createElement('canvas')
+  c.width = Math.round(img.width * scale)
+  c.height = Math.round(img.height * scale)
+  const ctx = c.getContext('2d')!
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, c.width, c.height)
+  ctx.drawImage(img, 0, 0, c.width, c.height)
+  return c.toDataURL('image/jpeg', quality)
+}
+
 function dataUrlToBlob(dataUrl: string): Blob {
   const [head, b64] = dataUrl.split(',')
   const mime = head.match(/:(.*?);/)?.[1] || 'image/png'
@@ -394,11 +408,58 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([arr], { type: mime })
 }
 
+function isNativeApp(): boolean {
+  const cap = (globalThis as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
+  return Boolean(cap?.isNativePlatform?.())
+}
+
+// 原生 App 内没有 /api/proxy 同源接口，浏览器 fetch 又会被 CORS 拦截：
+// JSON 请求改走 CapacitorHttp 原生桥（OkHttp），完全绕开同源策略。
+async function nativeFetch(targetUrl: string, init: RequestInit): Promise<Response> {
+  const { CapacitorHttp } = await import('@capacitor/core')
+  const headerRecord: Record<string, string> = {}
+  new Headers(init.headers).forEach((value, key) => {
+    headerRecord[key] = value
+  })
+  let data: unknown
+  if (typeof init.body === 'string') {
+    try {
+      data = JSON.parse(init.body)
+    } catch {
+      data = init.body
+    }
+  }
+  const res = await CapacitorHttp.request({
+    url: targetUrl,
+    method: (init.method as string) || 'POST',
+    headers: headerRecord,
+    data,
+    connectTimeout: 60_000,
+    readTimeout: 600_000,
+  })
+  const payload = typeof res.data === 'string' ? res.data : JSON.stringify(res.data)
+  const outHeaders = new Headers()
+  const contentType = res.headers?.['content-type'] || res.headers?.['Content-Type']
+  if (contentType) outHeaders.set('content-type', contentType)
+  return new Response(payload, { status: res.status, headers: outHeaders })
+}
+
 async function smartFetch(
   targetUrl: string,
   init: RequestInit,
   useProxy: boolean
 ): Promise<Response> {
+  if (isNativeApp() && useProxy) {
+    if (init.body == null || typeof init.body === 'string') {
+      try {
+        return await nativeFetch(targetUrl, init)
+      } catch {
+        return fetch(targetUrl, init)
+      }
+    }
+    // multipart / Blob 等复杂 body：直接请求上游（如 OpenAI 官方接口本身允许跨域）
+    return fetch(targetUrl, init)
+  }
   if (!useProxy) {
     return fetch(targetUrl, init)
   }
@@ -1407,14 +1468,17 @@ export async function generateCharacterImage(params: {
   // 1) 用户显式选择了 base64 模式
   // 2) 或者勾选了「附带三合一 Canvas 合成图」（本地动态绘制无公网 URL）
   // 3) 或者使用 Gemini Native 原生接口 / OpenAI multipart/form-data 模式
+  // App 内无法把本地图片暴露成公网 URL（原站 CDN 路径已失效），一律内联为 Base64
+  const nativeApp = isNativeApp()
   const needBase64 =
+    nativeApp ||
     config.imagePassMode === 'base64' ||
     config.sendStitchedSheet ||
     (provider === 'gemini' && config.geminiParams.endpointMode === 'native') ||
     (provider === 'gpt' && config.gptParams.endpointMode === 'images_edits')
 
   const imageRefs: string[] = needBase64
-    ? await Promise.all(rawSources.map(srcToPngDataUrl))
+    ? await Promise.all(rawSources.map((src) => (nativeApp ? srcToJpegDataUrl(src) : srcToPngDataUrl(src))))
     : rawSources.map(toPublicHttpsUrl)
 
   const allImageRefs: string[] = config.sendStitchedSheet
@@ -1464,7 +1528,8 @@ export async function generateCharacterImage(params: {
       fd.append('model', model)
       fd.append('prompt', prompt)
       allImageRefs.forEach((du, i) => {
-        fd.append('image[]', dataUrlToBlob(du), `ref_${i + 1}.png`)
+        const blob = dataUrlToBlob(du)
+        fd.append('image[]', blob, `ref_${i + 1}.${blob.type === 'image/jpeg' ? 'jpg' : 'png'}`)
       })
       if (g.size !== 'auto') fd.append('size', g.size)
       if (g.quality !== 'auto') fd.append('quality', g.quality)
@@ -1548,7 +1613,10 @@ export async function generateCharacterImage(params: {
       const url = `${root}/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`
       const parts = [
         ...allImageRefs.map((du) => ({
-          inlineData: { mimeType: 'image/png', data: du.split(',')[1] },
+          inlineData: {
+            mimeType: du.slice(5, du.indexOf(';')) || 'image/png',
+            data: du.split(',')[1],
+          },
         })),
         { text: prompt },
       ]

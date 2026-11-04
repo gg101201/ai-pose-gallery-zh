@@ -6,8 +6,8 @@ import {
   ChevronRightIcon,
   CopyIcon,
   DownloadIcon,
-  ExternalLinkIcon,
   FlameIcon,
+  Maximize2Icon,
   PlusIcon,
   RotateCcwIcon,
   SearchIcon,
@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { portraitsQuery } from '@/api/gallery'
 import { EmptyState } from '@/components/common/EmptyState'
+import { OriginalImageViewer } from '@/components/common/OriginalImageViewer'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -46,6 +47,7 @@ function PortraitsPage() {
   const [query, setQuery] = useState('')
   const [shown, setShown] = useState(60)
   const [viewerIndex, setViewerIndex] = useState<number | null>(null)
+  const [originalImage, setOriginalImage] = useState<{ src: string; name: string } | null>(null)
 
   const styleOptions = useMemo(() => {
     const sub = portraits.filter((p) => (!section || p.分区 === section) && (!hair || p.发长 === hair))
@@ -366,11 +368,15 @@ function PortraitsPage() {
                           下载高清原图
                         </a>
                       </Button>
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={`/${currentItem.原图}`} target="_blank" rel="noopener noreferrer">
-                          <ExternalLinkIcon className="size-3.5" />
-                          新窗口原图
-                        </a>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setOriginalImage({ src: `/${currentItem.原图}`, name: currentItem.标题 })
+                        }
+                      >
+                        <Maximize2Icon className="size-3.5" />
+                        查看原图
                       </Button>
                     </div>
                   </div>
@@ -380,6 +386,12 @@ function PortraitsPage() {
           })()}
         </DialogContent>
       </Dialog>
+
+      <OriginalImageViewer
+        src={originalImage?.src ?? null}
+        name={originalImage?.name}
+        onClose={() => setOriginalImage(null)}
+      />
     </>
   )
 }

@@ -11,6 +11,19 @@ interface ThemeState {
 
 const ThemeContext = createContext<ThemeState | null>(null)
 
+function syncNativeSystemBars(dark: boolean) {
+  const cap = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
+  if (!cap?.isNativePlatform?.()) return
+  void import('@capacitor/core').then(({ registerPlugin }) => {
+    const systemBars = registerPlugin<{
+      setStyle: (options: { bar: 'StatusBar' | 'NavigationBar'; style: 'LIGHT' | 'DARK' }) => Promise<void>
+    }>('SystemBars')
+    const style = dark ? 'DARK' : 'LIGHT'
+    void systemBars.setStyle({ bar: 'StatusBar', style }).catch(() => {})
+    void systemBars.setStyle({ bar: 'NavigationBar', style }).catch(() => {})
+  })
+}
+
 function readTheme(): Theme {
   const v = localStorage.getItem(STORAGE_KEY)
   return v === 'light' || v === 'dark' ? v : 'system'
@@ -24,6 +37,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const apply = () => {
       const dark = theme === 'dark' || (theme === 'system' && media.matches)
       document.documentElement.classList.toggle('dark', dark)
+      syncNativeSystemBars(dark)
     }
     apply()
     if (theme !== 'system') return
