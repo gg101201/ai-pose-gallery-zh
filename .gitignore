@@ -30,3 +30,9 @@ img/costume/*.png
 img/portrait/*.png
 img/depth/*.png
 thumbs/depth/*.jpg
+
+# 离线包补充图（scripts/download_remote_costumes.py 下载，勿提交）
+img/costumes/gia-anime/
+thumbs/costumes/gia-anime/
+img/costumes/charadb/
+thumbs/costumes/charadb/

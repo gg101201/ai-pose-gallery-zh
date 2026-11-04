@@ -298,6 +298,9 @@ function CostumesPage() {
         <DialogContent className="max-h-[90dvh] w-[95vw] max-w-4xl overflow-y-auto p-0 sm:max-w-4xl">
           {currentItem && viewerIndex !== null && (() => {
             const picked = recipe.costume?.id === currentItem.id && (recipe.costume.selectedView || 'front') === (currentItem.selectedView || 'front')
+            const imageUrl = referenceImageUrl(currentItem.原图)
+            const remoteImage = /^https?:\/\//i.test(imageUrl)
+            const imageExt = imageUrl.split('.').pop()?.toLowerCase() || 'webp'
             return (
               <div className="grid md:grid-cols-[1fr_320px]">
                 <div className="relative flex max-h-[78dvh] min-h-[min(380px,65dvh)] items-center justify-center bg-muted/60 p-4">
@@ -380,9 +383,14 @@ function CostumesPage() {
                     </Button>
                     <div className="grid grid-cols-2 gap-2">
                       <Button variant="outline" size="sm" asChild>
-                        <a href={referenceImageUrl(currentItem.原图)} download={['charadb', 'gia-anime'].includes(currentItem.source || '') ? undefined : `${currentItem.id}.webp`} target={['charadb', 'gia-anime'].includes(currentItem.source || '') ? '_blank' : undefined} rel="noopener noreferrer">
+                        <a
+                          href={imageUrl}
+                          download={remoteImage ? undefined : `${currentItem.id}.${imageExt}`}
+                          target={remoteImage ? '_blank' : undefined}
+                          rel="noopener noreferrer"
+                        >
                           <DownloadIcon className="size-3.5" />
-                          {['charadb', 'gia-anime'].includes(currentItem.source || '') ? '前往来源原图' : '下载高清原图'}
+                          {remoteImage ? '前往来源原图' : '下载高清原图'}
                         </a>
                       </Button>
                       {['charadb', 'gia-anime'].includes(currentItem.source || '') ? (
