@@ -35,7 +35,7 @@ export function OriginalImageViewer({ src, name, onClose }: OriginalImageViewerP
     >
       <div
         className="flex shrink-0 items-center justify-between gap-2 px-3 pb-2"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
+        style={{ paddingTop: 'calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}
       >
         <span className="truncate text-sm font-medium text-white/90">{name || '原图预览'}</span>
         <div className="flex shrink-0 items-center gap-1">
@@ -61,7 +61,7 @@ export function OriginalImageViewer({ src, name, onClose }: OriginalImageViewerP
       </div>
       <div
         className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-3"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}
+        style={{ paddingBottom: 'calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 0.75rem)' }}
       >
         <img
           src={src}

@@ -42,7 +42,7 @@ export function RecipeDock() {
   }
 
   return (
-    <div className="sticky bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 mx-auto mt-4 w-full max-w-5xl [@media(max-height:30rem)]:static">
+    <div className="recipe-dock-safe-bottom sticky z-30 mx-auto mt-4 w-full max-w-5xl [@media(max-height:30rem)]:static">
       <div className="flex flex-col gap-2 rounded-2xl border border-border/80 bg-card/95 p-2 shadow-lg backdrop-blur-md @3xl/main:flex-row @3xl/main:items-center @3xl/main:justify-between sm:px-3.5 sm:py-2.5">
         <div className="grid min-w-0 max-w-full flex-1 grid-cols-3 gap-1.5 sm:gap-2">
           {/* Slot 1: Portrait */}

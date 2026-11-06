@@ -141,3 +141,13 @@
 [data-slot="sidebar-menu-button"][data-active="true"] {
   font-weight: 600;
 }
+/* Capacitor SystemBars 注入的安全区；固定定位浮层不会自动继承 body 的内边距 */
+.safe-top {
+  padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+}
+.safe-bottom {
+  padding-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+}
+.recipe-dock-safe-bottom {
+  bottom: max(0.75rem, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+}
