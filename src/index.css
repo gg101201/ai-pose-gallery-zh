@@ -125,6 +125,10 @@
     }
   body {
     @apply bg-background text-foreground;
+    }
+  /* 安全区放在 #root 而不是 body：Radix 打开弹层时会给 body 注入
+     padding-top:0 !important（滚动锁），放在 body 上会导致页面瞬间上移。 */
+  #root {
     padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
     padding-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
