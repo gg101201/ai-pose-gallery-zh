@@ -2,6 +2,8 @@
 
 本项目除了 Web 版，还提供基于 **Capacitor 8** 的 Android 客户端。它把 `dist/`、`data/`、`img/`、`thumbs/` 全部打包进 APK，实现**完全离线**的图库与合成台。
 
+> 🤖 **制作说明**：本 Android 客户端的代码修改、离线资源打包、原生插件、构建脚本与 APK 打包，均由 **DeepSeek V4.1 Flash 1017** 执行；上游图库与 Web 应用版权归原作者所有。
+
 - **应用 ID**：`app.anhao.poselib`
 - **应用名称**：AI 角色图鉴
 - **最低系统**：Android 7.0（API 24）

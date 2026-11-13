@@ -34,6 +34,8 @@
 
 仓库包含一套可离线运行的 Android 工程（`android/`），通过 Capacitor 将 Web 构建、图库与合成台一起打包进 APK。
 
+> 🤖 **制作说明**：Android 客户端适配、离线资源打包、原生下载插件、状态栏安全区修复、构建脚本及 APK 打包，均由 **DeepSeek V4.1 Flash 1017** 执行；上游图库与 Web 应用版权归原作者所有。
+
 > 📥 **已构建 APK 下载（夸克网盘）**：<https://pan.quark.cn/s/502d4fe41d7f> · 口令 `/~3a383cGdRT~:/`（约 1.27 GB，仅限个人使用）
 
 - 应用 ID `app.anhao.poselib`，最低 Android 7.0（API 24），目标 API 36
@@ -303,6 +305,12 @@ for d in ~/ai-pose-gallery-zh/skills/*-reference*; do ln -s "$d" ~/.claude/skill
   python3 scripts/import_charadb.py
   ```
 - **Android 离线包**：运行 `scripts/download_remote_costumes.py` 可将 CharaDB 与ギア动漫图片下载到本地并打包进 APK；下载图片不入库，APK 仅限个人使用，请勿公开分发。构建步骤见 [docs/ANDROID.md](docs/ANDROID.md)。
+
+## 制作说明
+
+本仓库中相对于上游的 **Android 客户端适配、离线图库打包、原生图片保存插件、状态栏安全区修复、构建脚本与 APK 打包**等操作，均由 **DeepSeek V4.1 Flash 1017** 执行。
+
+上游图库、Web 应用与 ComfyUI 插件的版权归原作者所有；本仓库仅在上述基础上进行 Android 适配与本地化工程实践。
 
 ## 免责声明与版权说明（Disclaimer）
 
