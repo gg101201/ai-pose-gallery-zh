@@ -128,6 +128,7 @@ git clone --depth 1 https://github.com/anhao/ai-pose-gallery-zh.git
 - **路由与状态**：TanStack Router + TanStack Query + IndexedDB 本地存储
 - **样式与组件**：Tailwind CSS 4.3 + shadcn/ui (Radix UI) + Lucide Icons
 - **ComfyUI 插件**：Python (`aiohttp` + `Pillow` + `torch`) + LiteGraph Frontend Extension
+- **Android 客户端**：Capacitor 8 + 原生 ImageSaver 插件（完整离线图库，详见 [docs/ANDROID.md](docs/ANDROID.md)）
 - **代码质量**：Oxlint + Oxfmt
 
 ```text
@@ -147,6 +148,8 @@ git clone --depth 1 https://github.com/anhao/ai-pose-gallery-zh.git
 ├── functions/api/proxy.ts  # Cloudflare Pages Functions / Workers 同源 CORS 代理 (/api/proxy)
 ├── worker.ts               # Cloudflare Workers 入口（静态资源 ASSETS + /api/proxy 路由）
 ├── wrangler.jsonc          # Cloudflare Workers 配置文件
+├── android/                # Capacitor Android 工程源码（构建产物与 assets/public 已忽略）
+├── capacitor.config.ts     # Capacitor 配置（appId / webDir / SystemBars 安全区）
 ├── data/
 │   ├── pose.json / pose-zh.json                 # 姿势库原始数据 & 中文数据（1,439 条）
 │   ├── costume.json / costume-zh.json           # 服装库原始数据 & 中文数据（1,407 条）
@@ -160,6 +163,8 @@ git clone --depth 1 https://github.com/anhao/ai-pose-gallery-zh.git
 │   ├── i18n.py             # 日译中词典与人像发型/服装标签映射
 │   ├── apply_translation.py# 生成三库 *-zh.json 纯中文数据与检索索引
 │   ├── verify.py           # 校验本地图片完整性（存在性 / 大小 / 文件头）
+│   ├── download_remote_costumes.py # 下载动漫/二次元热链图片（Android 离线包）
+│   ├── sync_android_assets.py      # 同步 data/img/thumbs 到 Android 并本地化图片路径
 │   └── build.sh            # 构建 Cloudflare 发布目录 dist/
 ├── skills/                 # Claude Code / Agent 姿势・服装・人像检索技能包
 └── README.md
@@ -195,6 +200,31 @@ python3 scripts/apply_translation.py
 # 校验全部图片文件是否完整
 python3 scripts/verify.py
 ```
+
+---
+
+## Android 客户端（Capacitor）
+
+仓库包含一套可离线运行的 Android 工程（`android/`），通过 Capacitor 将 Web 构建、图库与合成台一起打包进 APK。
+
+- 应用 ID `app.anhao.poselib`，最低 Android 7.0（API 24），目标 API 36
+- 完整离线图库：额外下载 1,760 套动漫 / 二次元服装图（约 128 MB）
+- 原生图片保存：Android 10+ 保存到 `Download/AI-Figure-Atlas/`
+- 已处理 WebView 不支持 `<a download>`、状态栏安全区、Radix 滚动锁导致页面跳动等问题
+
+快速构建：
+
+```bash
+corepack pnpm build
+npx cap sync android
+python3 scripts/download_remote_costumes.py   # 首次构建 / 图片更新时
+python3 scripts/sync_android_assets.py
+cd android && ./gradlew assembleDebug
+```
+
+完整的环境要求、构建顺序、目录结构、版本号与常见问题见 **[docs/ANDROID.md](docs/ANDROID.md)**。
+
+> ⚠️ `npx cap sync android` 会清空 `assets/public`，之后必须重新运行 `sync_android_assets.py`，否则 App 内没有图库数据。
 
 ---
 
@@ -270,6 +300,7 @@ for d in ~/ai-pose-gallery-zh/skills/*-reference*; do ln -s "$d" ~/.claude/skill
   ```bash
   python3 scripts/import_charadb.py
   ```
+- **Android 离线包**：运行 `scripts/download_remote_costumes.py` 可将 CharaDB 与ギア动漫图片下载到本地并打包进 APK；下载图片不入库，APK 仅限个人使用，请勿公开分发。构建步骤见 [docs/ANDROID.md](docs/ANDROID.md)。
 
 ## 免责声明与版权说明（Disclaimer）
 
@@ -283,5 +314,6 @@ for d in ~/ai-pose-gallery-zh/skills/*-reference*; do ln -s "$d" ~/.claude/skill
 3. **数据来源与版权归属声明**
    - 本仓库原有姿势（`ai-pose-gallery.pages.dev`）、服装（`ai-costume-gallery.pages.dev`）、人像（`ai-portrait-gallery.pages.dev`，CC0 1.0 协议）图片与原始数据的著作权归原作者 **ギア（@giaaibusi）** 所有。
    - 本仓库仅为中文本地化翻译与前端工程实践存档，不对原始图片主张任何权利，**严禁任何人将本仓库图片提取后进行商业倒卖或付费分发**。若原作者对镜像存档有任何异议，请联系维护者立即处理。
+   - 由 `android/` 构建的离线 APK 同样包含上述受限制图片（含 CharaDB 二次元服装），**仅限个人学习与离线浏览使用，禁止公开分发、上传公开 Release 或用于商业用途**。
 4. **开源协议**
    - 前端应用代码（`src/`）、ComfyUI 插件（`comfyui_plugin/`）与数据处理脚本（`scripts/`）以 [MIT 协议](LICENSE) 开源；该协议**不覆盖** `img/`、`thumbs/` 与 `data/` 中的图片及原始数据。
