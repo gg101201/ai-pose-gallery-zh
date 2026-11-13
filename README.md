@@ -30,6 +30,31 @@
 
 ---
 
+## 📱 Android 客户端（Capacitor）
+
+仓库包含一套可离线运行的 Android 工程（`android/`），通过 Capacitor 将 Web 构建、图库与合成台一起打包进 APK。
+
+- 应用 ID `app.anhao.poselib`，最低 Android 7.0（API 24），目标 API 36
+- 完整离线图库：额外下载 1,760 套动漫 / 二次元服装图（约 128 MB），APK 约 **1.27 GB**
+- 原生图片保存：Android 10+ 保存到 `Download/AI-Figure-Atlas/`
+- 已处理 WebView 不支持 `<a download>`、状态栏安全区、Radix 滚动锁导致页面跳动等问题
+
+快速构建：
+
+```bash
+corepack pnpm build
+npx cap sync android
+python3 scripts/download_remote_costumes.py   # 首次构建 / 图片更新时
+python3 scripts/sync_android_assets.py
+cd android && ./gradlew assembleDebug
+```
+
+完整的环境要求、构建顺序、目录结构、版本号与常见问题见 **[docs/ANDROID.md](docs/ANDROID.md)**。
+
+> ⚠️ `npx cap sync android` 会清空 `assets/public`，之后必须重新运行 `sync_android_assets.py`，否则 App 内没有图库数据。
+
+---
+
 ## 这是什么
 
 原站是ギア（@giaaibusi）发布的三大 AI 绘画参考图库（姿势、服装、人像），元数据全部为日文，且分散在三个独立站点。本仓库（v2.0）完成了**三站合一、全量中文化、AI 角色合成工作台与 ComfyUI 原生插件升级**：
@@ -200,31 +225,6 @@ python3 scripts/apply_translation.py
 # 校验全部图片文件是否完整
 python3 scripts/verify.py
 ```
-
----
-
-## Android 客户端（Capacitor）
-
-仓库包含一套可离线运行的 Android 工程（`android/`），通过 Capacitor 将 Web 构建、图库与合成台一起打包进 APK。
-
-- 应用 ID `app.anhao.poselib`，最低 Android 7.0（API 24），目标 API 36
-- 完整离线图库：额外下载 1,760 套动漫 / 二次元服装图（约 128 MB）
-- 原生图片保存：Android 10+ 保存到 `Download/AI-Figure-Atlas/`
-- 已处理 WebView 不支持 `<a download>`、状态栏安全区、Radix 滚动锁导致页面跳动等问题
-
-快速构建：
-
-```bash
-corepack pnpm build
-npx cap sync android
-python3 scripts/download_remote_costumes.py   # 首次构建 / 图片更新时
-python3 scripts/sync_android_assets.py
-cd android && ./gradlew assembleDebug
-```
-
-完整的环境要求、构建顺序、目录结构、版本号与常见问题见 **[docs/ANDROID.md](docs/ANDROID.md)**。
-
-> ⚠️ `npx cap sync android` 会清空 `assets/public`，之后必须重新运行 `sync_android_assets.py`，否则 App 内没有图库数据。
 
 ---
 
