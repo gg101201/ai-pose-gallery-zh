@@ -1,4 +1,6 @@
-# Android 客户端（Capacitor）
+# ai-pose-gallery-zh安卓版
+
+> Android 客户端（Capacitor）构建、打包与使用说明
 
 本项目除了 Web 版，还提供基于 **Capacitor 8** 的 Android 客户端。它把 `dist/`、`data/`、`img/`、`thumbs/` 全部打包进 APK，实现**完全离线**的图库与合成台。
 
