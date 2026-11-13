@@ -34,6 +34,8 @@
 
 仓库包含一套可离线运行的 Android 工程（`android/`），通过 Capacitor 将 Web 构建、图库与合成台一起打包进 APK。
 
+> 📥 **已构建 APK 下载（夸克网盘）**：<https://pan.quark.cn/s/502d4fe41d7f> · 口令 `/~3a383cGdRT~:/`（约 1.27 GB，仅限个人使用）
+
 - 应用 ID `app.anhao.poselib`，最低 Android 7.0（API 24），目标 API 36
 - 完整离线图库：额外下载 1,760 套动漫 / 二次元服装图（约 128 MB），APK 约 **1.27 GB**
 - 原生图片保存：Android 10+ 保存到 `Download/AI-Figure-Atlas/`
