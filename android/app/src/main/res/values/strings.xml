@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AI 角色图鉴</string>
+    <string name="title_activity_main">AI 角色图鉴</string>
+    <string name="package_name">app.anhao.poselib</string>
+    <string name="custom_url_scheme">app.anhao.poselib</string>
+</resources>
